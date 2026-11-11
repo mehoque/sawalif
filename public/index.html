@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Sawalif with Noura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: woven Sadu band header; left column = Noura's stage + conversation, right column = lesson board / progress / alphabet tabs. Stacks on phones. */
+:root{
+  --bg:#f3f1ed; --surface:#fffdf9; --surface-2:#f8f5f0; --ink:#1f1b18; --muted:#6c6259; --line:#e3dcd2;
+  --madder:#a4352c; --indigo:#2e3c68; --sand:#c49a5c; --ok:#2e7a50; --warn:#a2650f; --on-accent:#fffdf9;
+  --f-display:"Reem Kufi","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-ar:"Noto Naskh Arabic","IBM Plex Sans Arabic","Geeza Pro","Arial",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131117; --surface:#1c1920; --surface-2:#221f27; --ink:#ede6dc; --muted:#a59b90; --line:#332e39;
+  --madder:#e26b5c; --indigo:#93a3e2; --sand:#d8b57c; --ok:#6cc290; --warn:#e2a54c; --on-accent:#131117; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131117; --surface:#1c1920; --surface-2:#221f27; --ink:#ede6dc; --muted:#a59b90; --line:#332e39;
+  --madder:#e26b5c; --indigo:#93a3e2; --sand:#d8b57c; --ok:#6cc290; --warn:#e2a54c; --on-accent:#131117; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:28px;margin:0;letter-spacing:.2px}
+.brand .ar{font-family:var(--f-display);font-size:22px;color:var(--madder)}
+.brand small{color:var(--muted);font-size:13px}
+.hdr-actions{display:flex;gap:8px;align-items:center}
+.sadu{height:12px;margin-bottom:18px;border-radius:2px;
+  background:
+   linear-gradient(135deg,var(--madder) 25%,transparent 25%) 0 0/24px 12px,
+   linear-gradient(225deg,var(--madder) 25%,transparent 25%) 0 0/24px 12px,
+   linear-gradient(90deg,var(--ink) 0 4px,transparent 4px) 0 0/24px 12px,
+   var(--sand);opacity:.9}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--madder);color:var(--on-accent);border-color:var(--madder);font-weight:600}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:default}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{min-width:0;display:flex;flex-direction:column;gap:14px}
+.stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+#orb{display:block;width:100%;height:230px}
+.stage-cap{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:13px;color:var(--muted);pointer-events:none}
+.stage-cap b{color:var(--ink);font-weight:600}
+.start-over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:color-mix(in srgb,var(--surface) 82%,transparent);text-align:center;padding:16px}
+.start-over p{margin:0;max-width:44ch;color:var(--muted);font-size:14px}
+.start-over .big{font-size:17px;padding:11px 22px}
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-width:0}
+#log{height:min(46vh,440px);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.empty-log{color:var(--muted);font-size:14px;margin:auto;text-align:center;max-width:40ch}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:4px;min-width:0}
+.msg .who{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.msg .body{padding:10px 13px;border-radius:14px;overflow-wrap:anywhere}
+.msg.noura{align-self:flex-start}
+.msg.noura .body{background:var(--surface-2);border:1px solid var(--line);border-top-left-radius:4px}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .body{background:var(--indigo);color:var(--on-accent);border-top-right-radius:4px}
+.seg-ar{font-family:var(--f-ar);font-size:20px;line-height:1.7;direction:rtl;display:block;text-align:right}
+.seg-en{display:block}
+.msg.me .seg-ar{text-align:right}
+.replay{align-self:flex-start;border:0;background:none;color:var(--muted);font-size:12px;padding:0}
+.replay:hover{color:var(--madder)}
+.eval{font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);align-self:flex-start}
+.eval.correct{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.eval.partial{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.eval.wrong{color:var(--madder);border-color:color-mix(in srgb,var(--madder) 40%,transparent)}
+.composer{border-top:1px solid var(--line);padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mic{width:56px;height:56px;border-radius:50%;border:0;background:var(--madder);color:var(--on-accent);display:grid;place-items:center;flex:none;position:relative}
+.mic svg{width:24px;height:24px}
+.mic.listening{background:var(--indigo)}
+.mic.listening::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--indigo);animation:ring 1.3s ease-out infinite}
+@keyframes ring{from{opacity:.9;transform:scale(.9)}to{opacity:0;transform:scale(1.25)}}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.lang button{border:0;background:transparent;padding:6px 11px;font-size:13px}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.typebox{flex:1 1 220px;min-width:0;display:flex;gap:8px}
+#text{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:9px 14px}
+#text:focus{outline:2px solid var(--indigo);outline-offset:0}
+.hint{width:100%;font-size:12px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;min-width:0}
+.tabs{display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;padding:7px 12px;border-radius:999px;font-size:14px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface-2);color:var(--ink);font-weight:600}
+.tabpane{padding:18px}
+.card-empty{color:var(--muted);font-size:14px}
+.kind{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--madder);font-weight:600}
+.scene{font-size:46px;line-height:1.1;margin:8px 0 2px}
+.card-ar{font-family:var(--f-ar);font-weight:700;font-size:44px;line-height:1.5;direction:rtl;text-align:right;margin:4px 0 0;overflow-wrap:anywhere}
+.card-tr{font-size:17px;color:var(--indigo);font-weight:500}
+.card-en{font-size:16px}
+.msa{margin-top:10px;font-size:14px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:8px 10px;border-radius:10px;background:var(--surface-2)}
+.msa .ar{font-family:var(--f-ar);font-size:20px;direction:rtl;text-decoration:line-through;text-decoration-color:var(--madder);color:var(--muted)}
+.tip{margin-top:10px;font-size:14px;color:var(--muted);border-left:3px solid var(--sand);padding-left:10px}
+.letters{display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:6px;margin-top:14px;justify-content:flex-start}
+.ltile{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:4px 8px;min-width:46px;text-align:center}
+.ltile .g{font-family:var(--f-ar);font-size:24px;line-height:1.5;display:block}
+.ltile .n{font-size:10.5px;color:var(--muted);display:block;white-space:nowrap}
+.ltile.hard{border-color:var(--madder)}
+.ltile.hard .g{color:var(--madder)}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:14px}
+.options button{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px;font-family:var(--f-ar);font-size:18px;text-align:center}
+.options button:hover{border-color:var(--indigo)}
+#illus{margin-top:12px;max-width:100%;border-radius:12px;display:block}
+.stat-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.stat{background:var(--surface-2);border-radius:12px;padding:10px}
+.stat .v{font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .l{font-size:11.5px;color:var(--muted)}
+@media (max-width:440px){.stat-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid var(--line)}
+.chip.s{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.chip.f{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.none{font-size:13px;color:var(--muted)}
+.recap{font-size:14px;background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.vlist{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;padding-right:4px}
+.vrow{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:13px}
+.vrow .ar{font-family:var(--f-ar);font-size:18px}
+.vrow .en{color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.bar i.mid{background:var(--warn)}
+.bar i.low{background:var(--madder)}
+.teacher textarea{width:100%;min-height:70px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 10px;resize:vertical}
+.abc{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;direction:rtl}
+@media (max-width:440px){.abc{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.abc button{border:1px solid var(--line);border-radius:10px;padding:6px 2px 4px;background:var(--surface-2);text-align:center;position:relative}
+.abc .g{font-family:var(--f-ar);font-size:26px;line-height:1.4;display:block}
+.abc .t{font-size:10.5px;color:var(--muted);display:block}
+.abc button.hard .g{color:var(--madder)}
+.abc .heat{position:absolute;left:4px;right:4px;bottom:2px;height:3px;border-radius:2px;background:var(--ok)}
+.abc-detail{margin-top:12px;font-size:14px;min-height:48px}
+.abc-detail .ar{font-family:var(--f-ar);font-size:22px}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.banner{font-size:13px;padding:8px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);color:var(--ink);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:0;width:min(520px,calc(100% - 32px));max-height:calc(100% - 32px)}
+dialog::backdrop{background:rgba(10,8,12,.45)}
+.dlg{padding:20px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{font-family:var(--f-display);margin:0;font-size:22px}
+.dlg label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.dlg input,.dlg select,.dlg textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 10px;color:var(--ink);font-size:14px}
+.dlg .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.voice-note{font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.mic.listening::after{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Sawalif</h1><span class="ar">سوالف مع نورة</span>
+      <small id="statusLine">Saudi dialect practice with memory</small>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn ghost" id="endBtn" disabled>End session</button>
+      <button class="btn" id="settingsBtn" aria-label="Voice and tutor settings">Settings</button>
+    </div>
+  </header>
+  <div class="sadu" aria-hidden="true"></div>
+  <div id="banner" class="banner" hidden></div>
+
+  <div class="grid">
+    <div class="col">
+      <div class="stage">
+        <canvas id="orb" aria-label="Noura's voice visualizer"></canvas>
+        <div class="stage-cap" id="stageCap">Noura is ready</div>
+        <div class="start-over" id="startOver">
+          <p id="startText">Noura reviews what you practiced last time, tests you on it, then branches into new Saudi dialect.</p>
+          <button class="btn primary big" id="startBtn">Start session · يالله نبدأ</button>
+        </div>
+      </div>
+      <div class="chat">
+        <div id="log" aria-live="polite"><div class="empty-log" id="emptyLog">Your conversation appears here. Tap the mic and answer out loud, or type.</div></div>
+        <div class="composer">
+          <button class="mic" id="micBtn" aria-label="Hold a turn: tap to talk, tap again to send" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+          <div class="lang" role="group" aria-label="Language you will speak">
+            <button id="langAr" aria-pressed="true">عربي</button>
+            <button id="langEn" aria-pressed="false">EN</button>
+          </div>
+          <form class="typebox" id="typeForm">
+            <input id="text" autocomplete="off" placeholder="Or type here, in Arabic, English or romanized" disabled>
+            <button class="btn" id="sendBtn" disabled>Send</button>
+          </form>
+          <div class="hint" id="micHint">Tap the mic, speak, tap again to send. Space bar works too.</div>
+          <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="autoSend"> Send automatically when I pause speaking (for your device's own dictation)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="panel">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" data-tab="board">Board</button>
+          <button role="tab" aria-selected="false" data-tab="progress">My progress</button>
+          <button role="tab" aria-selected="false" data-tab="abc">Alphabet</button>
+        </div>
+        <div class="tabpane" id="pane-board">
+          <div id="card"><p class="card-empty">Words, quizzes and dialect notes appear here as Noura teaches. Each one shows the letters it is built from.</p></div>
+        </div>
+        <div class="tabpane" id="pane-progress" hidden></div>
+        <div class="tabpane" id="pane-abc" hidden>
+          <div class="abc" id="abcGrid"></div>
+          <div class="legend">Red letters are sounds English lacks. The green line grows as more of your words use that letter. Tap a letter to hear it.</div>
+          <div class="abc-detail" id="abcDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<dialog id="onboard">
+  <form class="dlg" method="dialog" id="onboardForm">
+    <h2>أهلين! Let's set you up</h2>
+    <label>What should Noura call you?<input id="obName" value="Ehsan"></label>
+    <label>Your level in Saudi dialect
+      <select id="obLevel">
+        <option value="beginner">Beginner: a few words</option>
+        <option value="elementary" selected>Elementary: basic phrases, short exchanges</option>
+        <option value="intermediate">Intermediate: everyday conversations</option>
+        <option value="upper-intermediate">Upper intermediate: fluent but rough edges</option>
+      </select></label>
+    <label>Where you'll use it<input id="obGoals" value="family, work meetings, travel in Riyadh, everyday small talk"></label>
+    <label>What your Preply teacher covered recently (optional)<textarea id="obTeacher" rows="3" placeholder="e.g. past tense verbs, ordering coffee, وش رايك"></textarea></label>
+    <div class="row"><button class="btn primary" id="obSave">Save and start</button></div>
+  </form>
+</dialog>
+
+<dialog id="settings">
+  <form class="dlg" method="dialog">
+    <h2>Voice and tutor</h2>
+    <label>Arabic voice<select id="arVoice"></select></label>
+    <div class="voice-note" id="voiceNote"></div>
+    <label>Arabic speed <input type="range" id="arRate" min="0.6" max="1.2" step="0.05" value="0.9"></label>
+    <label>English voice<select id="enVoice"></select></label>
+    <label>Tutor replies
+      <select id="tier">
+        <option value="default">Better Saudi dialect (Sonnet)</option>
+        <option value="quick">Fastest, cheapest (Haiku)</option>
+      </select></label>
+    <label>Your name<input id="setName"></label>
+    <label>Level<select id="setLevel">
+        <option value="beginner">Beginner</option><option value="elementary">Elementary</option>
+        <option value="intermediate">Intermediate</option><option value="upper-intermediate">Upper intermediate</option></select></label>
+    <div class="row">
+      <button class="btn" value="cancel">Close</button>
+      <button class="btn primary" id="setSave" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DIAC = /[ً-ْٰـ]/g;
+const normAr = (s) => String(s||"").replace(DIAC,"").replace(/[أإآٱ]/g,"ا").trim();
+
+/* ---------- Letters ---------- */
+const LETTERS = [
+ ["ا","ألف","alif","ā / a","ابغى","abgha · I want"],["ب","باء","bā","b","بيت","bēt · house"],["ت","تاء","tā","t","تمر","tamr · dates"],
+ ["ث","ثاء","thā","th (think)","ثوب","thōb · thobe"],["ج","جيم","jīm","j","جوال","jawwāl · phone"],["ح","حاء","ḥā","ḥ, breathy h","حليب","ḥalīb · milk"],
+ ["خ","خاء","khā","kh (Bach)","خوي","khawi · buddy"],["د","دال","dāl","d","دلة","dalla · coffee pot"],["ذ","ذال","dhāl","dh (this)","ذهب","dhahab · gold"],
+ ["ر","راء","rā","rolled r","رجّال","rajjāl · man"],["ز","زاي","zāy","z","زين","zēn · good"],["س","سين","sīn","s","سالفة","sālfa · story, chat"],
+ ["ش","شين","shīn","sh","شاي","shāy · tea"],["ص","صاد","ṣād","heavy s","صباح","ṣabāḥ · morning"],["ض","ضاد","ḍād","heavy d","ضيف","ḍēf · guest"],
+ ["ط","طاء","ṭā","heavy t","طيارة","ṭayyāra · plane"],["ظ","ظاء","ẓā","heavy dh","ظهر","ẓuhr · noon"],["ع","عين","ʿayn","throat squeeze","عيال","ʿiyāl · kids"],
+ ["غ","غين","ghayn","gargled r","غدا","ghada · lunch"],["ف","فاء","fā","f","فنجال","finjāl · coffee cup"],["ق","قاف","gāf","g in Saudi speech","قهوة","gahwa · coffee"],
+ ["ك","كاف","kāf","k","كذا","kidha · like this"],["ل","لام","lām","l","ليش","lēsh · why"],["م","ميم","mīm","m","مرة","marra · very"],
+ ["ن","نون","nūn","n","نخلة","nakhla · palm"],["ه","هاء","hā","h","هلا","hala · hi"],["و","واو","wāw","w / ū","وش","wish · what"],["ي","ياء","yā","y / ī","يالله","yalla · let's go"]
+];
+const HARD = new Set("ثحخذصضطظعغق".split(""));
+const LMAP = Object.fromEntries(LETTERS.map(l => [l[0], l]));
+const EXTRA = {"ة":["ة","تاء مربوطة","tā marbūṭa","-a ending"],"ى":["ى","ألف مقصورة","alif maqṣūra","ā"],"ء":["ء","همزة","hamza","glottal stop"],"ؤ":["ؤ","همزة","hamza","glottal stop"],"ئ":["ئ","همزة","hamza","glottal stop"],"أ":["أ","ألف همزة","alif hamza","a"],"إ":["إ","ألف همزة","alif hamza","i"],"آ":["آ","ألف مدّ","alif madd","ā"]};
+function splitLetters(word){
+  const out=[]; for(const ch of String(word||"").replace(DIAC,"")){
+    if(LMAP[ch]) out.push({g:ch,n:LMAP[ch][2],hard:HARD.has(ch)});
+    else if(EXTRA[ch]) out.push({g:ch,n:EXTRA[ch][2],hard:false});
+    else if(ch===" ") out.push(null);
+  } return out;
+}
+
+/* ---------- State ---------- */
+const DEFAULT_PROFILE = () => ({ name:"", level:"elementary", goals:"", teacherNotes:"", strengths:[], focus:[], notes:[],
+  sessions:0, lastRecap:"", nextPlan:"", lastSeen:null, history:[] });
+let profile = DEFAULT_PROFILE();
+let vocab = {};            // key -> {ar,tr,en,seen,correct,wrong,last}
+let turns = [];            // [{role,content}]
+let sessionLog = [];       // human-readable lines for end-of-session consolidation
+let sessionActive = false, busy = false, speakLang = "ar", expectLang = "ar";
+let tier = "quick";
+let tts=null, dict=null;
+/* ---------- Backend: Claude via your private Cloudflare function ---------- */
+async function sample(input, opts={}){
+  let r;
+  try{
+    r = await fetch("/api/tutor",{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",
+      body:JSON.stringify({system:opts.system, messages: typeof input==="string"?[{role:"user",content:input}]:input,
+        tier:opts.modelTier||"default", max_tokens:opts.maxTokens||1200})});
+  }catch(e){ const err=new Error("offline"); err.code="network"; throw err; }
+  if(!r.ok){ const err=new Error(await r.text().catch(()=>"")); err.code = r.status===429?"rate_limited":(r.status===401||r.status===403)?"not_granted":"upstream_error"; throw err; }
+  const j = await r.json(); return {text: j.text||""};
+}
+sample.json = async (input,opts)=>{ const {text}=await sample(input,opts); const j=extractJSON(text); if(!j){ const e=new Error("bad json"); e.code="invalid_json"; e.text=text; throw e; } return j; };
+let lastCard = null, sessionBrief = "";
+
+/* ---------- Storage (private per viewer) ---------- */
+const LS = { get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}} };
+let saveTimer=null, saving=Promise.resolve();
+function persist(){
+  const body = JSON.stringify({profile, vocab});
+  LS.set("sawalif.profile",profile); LS.set("sawalif.vocab",vocab);
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ saving = saving.then(()=>fetch("/api/memory",{method:"PUT",headers:{"content-type":"application/json"},credentials:"same-origin",body})
+    .then(r=>{ if(!r.ok) throw 0; }).catch(()=>showBanner("Couldn't save progress just now. It's kept in this browser and will sync on the next save."))); }, 1200);
+}
+async function loadMemory(){
+  const lp = LS.get("sawalif.profile"), lv = LS.get("sawalif.vocab");
+  if(lp) profile = {...DEFAULT_PROFILE(), ...lp};
+  if(lv) vocab = lv;
+  try{
+    const ctl=new AbortController(); setTimeout(()=>ctl.abort(),10000);
+    const r = await fetch("/api/memory",{credentials:"same-origin",signal:ctl.signal});
+    if(r.status===401||r.status===403){ showBanner("You're not signed in. Reload the page to sign in again."); return; }
+    if(!r.ok) return;
+    const j = await r.json();
+    if(j&&j.profile) profile = {...DEFAULT_PROFILE(), ...j.profile};
+    if(j&&j.vocab) vocab = j.vocab;
+  }catch(e){}
+}
+
+/* ---------- Voices ---------- */
+let voices=[], arVoice=null, enVoice=null, arRate=0.9;
+const synth = window.speechSynthesis || null;
+function scoreAr(v){ let s=0; const n=(v.name+" "+v.lang).toLowerCase();
+  if(!/^ar/i.test(v.lang)) return -1;
+  if(/ar[-_]sa/i.test(v.lang)) s+=50; if(/ar[-_](ae|kw|qa|bh|om)/i.test(v.lang)) s+=25;
+  if(/natural|neural|online|premium|enhanced/.test(n)) s+=30;
+  if(/hamed|zariyah|maged|majed|laila|tarik/.test(n)) s+=10; return s; }
+function scoreEn(v){ let s=0; const n=(v.name).toLowerCase(); if(!/^en/i.test(v.lang)) return -1;
+  if(/en[-_]us/i.test(v.lang)) s+=10; if(/natural|neural|online|premium|enhanced|samantha|aria|jenny|google us/.test(n)) s+=20; return s; }
+function loadVoices(){
+  if(!synth) return; voices = synth.getVoices();
+  const prefAr = LS.get("sawalif.arVoice"), prefEn = LS.get("sawalif.enVoice");
+  const ars = voices.filter(v=>scoreAr(v)>=0).sort((a,b)=>scoreAr(b)-scoreAr(a));
+  const ens = voices.filter(v=>scoreEn(v)>=0).sort((a,b)=>scoreEn(b)-scoreEn(a));
+  arVoice = ars.find(v=>v.name===prefAr) || ars[0] || null;
+  enVoice = ens.find(v=>v.name===prefEn) || ens[0] || null;
+  $("arVoice").innerHTML = ars.length ? ars.map(v=>`<option ${v===arVoice?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("") : `<option>No Arabic voice in this browser</option>`;
+  $("enVoice").innerHTML = ens.map(v=>`<option ${v===enVoice?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("");
+  const isSaudi = arVoice && /ar[-_]sa/i.test(arVoice.lang);
+  $("voiceNote").textContent = !arVoice
+    ? "This browser has no Arabic voice. Open the page in Microsoft Edge for free Saudi neural voices (Hamed, Zariyah)."
+    : isSaudi ? `Using a Saudi (ar-SA) voice. ${/natural|neural|online/i.test(arVoice.name)?"Neural quality.":"For a more natural Saudi voice, open this page in Microsoft Edge (Hamed or Zariyah, Natural)."}`
+    : "No Saudi voice found, using another Arabic voice. Microsoft Edge has free Saudi neural voices.";
+}
+if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
+
+/* ---------- Speaking ---------- */
+let amp=0, mode="idle"; // idle | speaking | listening | thinking
+function chunk(text){ const parts = String(text).match(/[^.!?؟،,\n]+[.!?؟،,\n]*/g) || [text];
+  const out=[]; let cur=""; for(const p of parts){ if((cur+p).length>180 && cur){out.push(cur);cur=p}else cur+=p } if(cur.trim()) out.push(cur); return out; }
+function sayOne(text, lang){
+  return new Promise(resolve=>{
+    if(synth && (lang==="en" ? true : arVoice)){
+      const u = new SpeechSynthesisUtterance(text);
+      if(lang==="ar"){ u.voice=arVoice; u.lang=arVoice.lang; u.rate=arRate; }
+      else { if(enVoice){u.voice=enVoice;u.lang=enVoice.lang} else u.lang="en-US"; u.rate=1.02; }
+      let done=false; const fin=()=>{ if(!done){done=true; clearTimeout(t); resolve();} };
+      const t=setTimeout(fin, 4000 + text.length*140);
+      u.onboundary=()=>{ amp=Math.min(1,amp+0.55); };
+      u.onend=fin; u.onerror=fin; synth.speak(u);
+    } else if(tts){
+      tts.speak(text,{language: lang==="ar"?"ar":"en"}).then(resolve,resolve);
+    } else resolve();
+  });
+}
+let speakToken=0;
+async function speakSegments(segs){
+  const my=++speakToken; setMode("speaking");
+  for(const s of segs){ for(const c of chunk(s.text)){ if(my!==speakToken) return; await sayOne(c, s.lang); } }
+  if(my===speakToken) setMode("idle");
+}
+function stopSpeaking(){ speakToken++; try{synth&&synth.cancel()}catch(e){} try{tts&&tts.stop()}catch(e){} setMode("idle"); }
+
+/* ---------- Orb (Sadu ring) ---------- */
+const cv=$("orb"), cx=cv.getContext("2d"); let t0=performance.now();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function fit(){ const r=cv.getBoundingClientRect(), d=devicePixelRatio||1; cv.width=r.width*d; cv.height=r.height*d; cx.setTransform(d,0,0,d,0,0); }
+addEventListener("resize",fit); fit();
+let centerGlyph="ن";
+function draw(now){
+  const w=cv.clientWidth,h=cv.clientHeight, t=(now-t0)/1000;
+  cx.clearRect(0,0,w,h);
+  if(mode==="speaking") amp = Math.max(amp*0.92, 0.18+0.12*Math.sin(t*9)*Math.sin(t*3.1));
+  else if(mode==="listening") amp = 0.25+0.2*Math.abs(Math.sin(t*2.2)) + listenBump;
+  else if(mode==="thinking") amp = 0.1;
+  else amp *= 0.9;
+  listenBump*=0.9;
+  const madder=css("--madder"), indigo=css("--indigo"), sand=css("--sand"), ink=css("--ink");
+  const col = mode==="listening"?indigo:madder;
+  const R=Math.min(w,h)*0.30, n=36, rot = reduce?0:t*(mode==="thinking"?0.9:0.15);
+  cx.save(); cx.translate(w/2,h/2-8);
+  for(let ring=0;ring<2;ring++){
+    const rr = R + ring*16, k = ring? n*1.5: n;
+    for(let i=0;i<k;i++){
+      const a = (i/k)*Math.PI*2 + rot*(ring?-1:1);
+      const wob = (ring?0.6:1)*amp*(0.6+0.4*Math.sin(i*1.7+t*6));
+      const len = 8 + wob*26, base=6;
+      cx.save(); cx.rotate(a); cx.translate(rr,0);
+      cx.beginPath(); cx.moveTo(0,-base/2); cx.lineTo(len,0); cx.lineTo(0,base/2); cx.closePath();
+      cx.fillStyle = (i%3===0)? ink : (ring? sand: col); cx.globalAlpha = ring?0.75:1; cx.fill(); cx.restore();
+    }
+  }
+  cx.globalAlpha=1;
+  cx.beginPath(); cx.arc(0,0,R-10,0,Math.PI*2); cx.fillStyle=css("--surface-2"); cx.fill();
+  cx.lineWidth=2; cx.strokeStyle=col; cx.stroke();
+  cx.fillStyle=col; cx.font=`700 ${Math.round(R*0.95)}px "Noto Naskh Arabic", serif`; cx.textAlign="center"; cx.textBaseline="middle";
+  cx.fillText(centerGlyph,0,R*0.06);
+  cx.restore();
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+let listenBump=0;
+function setMode(m){ mode=m; const cap=$("stageCap");
+  cap.innerHTML = m==="speaking"?"<b>Noura</b> is speaking":m==="listening"?`<b>Listening</b> in ${speakLang==="ar"?"Arabic":"English"}, tap the mic to send`:m==="thinking"?"Noura is thinking…":"Your turn"; }
+
+/* ---------- UI helpers ---------- */
+function showBanner(msg){ const b=$("banner"); b.textContent=msg; b.hidden=!msg; }
+function addMsg(who, segs, extra){
+  $("emptyLog")?.remove();
+  const m=document.createElement("div"); m.className="msg "+(who==="me"?"me":"noura");
+  const body = segs.map(s=> s.lang==="ar"?`<span class="seg-ar" lang="ar">${esc(s.text)}</span>`:`<span class="seg-en">${esc(s.text)}</span>`).join("");
+  m.innerHTML = `<span class="who">${who==="me"?esc(profile.name||"You"):"Noura · نورة"}</span><div class="body">${body}</div>`;
+  if(who!=="me"){ const r=document.createElement("button"); r.className="replay"; r.textContent="▶ Hear again"; r.onclick=()=>{stopSpeaking(); speakSegments(segs)}; m.append(r); }
+  if(extra) m.append(extra);
+  $("log").append(m); $("log").scrollTop=$("log").scrollHeight;
+}
+function setLang(l){ speakLang=l; $("langAr").setAttribute("aria-pressed",l==="ar"); $("langEn").setAttribute("aria-pressed",l==="en"); }
+$("langAr").onclick=()=>setLang("ar"); $("langEn").onclick=()=>setLang("en");
+function setBusy(b){ busy=b; $("sendBtn").disabled=b||!sessionActive; $("micBtn").disabled=!sessionActive; }
+
+/* ---------- Board card ---------- */
+function renderCard(c){
+  lastCard=c; const el=$("card");
+  if(!c||!c.ar){ return; }
+  const kinds={word:"New word",phrase:"Phrase",quiz:"Quick quiz",dialect:"Saudi vs. MSA",pronunciation:"Pronunciation"};
+  const letters = splitLetters(c.ar.split(/\s+/).slice(0,3).join(" "));
+  centerGlyph = (normAr(c.ar)[0]) || "ن";
+  el.innerHTML = `
+    <div class="kind">${esc(kinds[c.kind]||"Lesson")}</div>
+    ${c.emoji?`<div class="scene" aria-hidden="true">${esc(c.emoji)}</div>`:""}
+    <div class="card-ar" lang="ar">${esc(c.ar)}</div>
+    ${c.translit?`<div class="card-tr">${esc(c.translit)}</div>`:""}
+    ${c.en?`<div class="card-en">${esc(c.en)}</div>`:""}
+    ${c.msa?`<div class="msa"><span>Textbook Arabic:</span><span class="ar" lang="ar">${esc(c.msa)}</span><span>→ in Riyadh you say the word above</span></div>`:""}
+    ${c.tip?`<div class="tip">${esc(c.tip)}</div>`:""}
+    ${letters.length?`<div class="letters" aria-label="Letters in this word">${letters.map(l=>l?`<span class="ltile ${l.hard?"hard":""}"><span class="g">${esc(l.g)}</span><span class="n">${esc(l.n)}</span></span>`:`<span style="width:10px"></span>`).join("")}</div>`:""}
+    ${Array.isArray(c.options)&&c.options.length?`<div class="options">${c.options.map((o,i)=>`<button data-opt="${i}" lang="ar">${esc(o)}</button>`).join("")}</div>`:""}
+    <div class="card-actions">
+      <button class="btn" id="hearCard">▶ Hear it slowly</button>
+      ${sample?`<button class="btn" id="illBtn">Draw a picture for it</button>`:""}
+    </div>
+    <div id="illusWrap"></div>`;
+  $("hearCard").onclick=()=>{ const r=arRate; arRate=Math.max(0.6,arRate-0.2); speakSegments([{lang:"ar",text:c.ar}]).finally(()=>arRate=r); };
+  el.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{ if(!busy) userTurn(c.options[+b.dataset.opt], true); });
+  if($("illBtn")) $("illBtn").onclick=()=>illustrate(c);
+  selectTab("board");
+}
+async function illustrate(c){
+  const btn=$("illBtn"); btn.disabled=true; btn.textContent="Drawing…";
+  try{
+    const {text} = await sample(`Draw a simple, warm, flat-style SVG illustration (viewBox 0 0 320 200) that makes this Saudi Arabic vocabulary item memorable: "${c.ar}" = "${c.en}". Set it in a Saudi context where natural (Riyadh street, majlis, desert, palm trees, dalla coffee pot). Use 4-6 solid colors, no text, no letters, no script tags, no external references. Reply with only the <svg>…</svg> markup.`,{modelTier:"quick",maxTokens:3000});
+    const m=text.match(/<svg[\s\S]*<\/svg>/i); if(!m) throw 0;
+    const doc=new DOMParser().parseFromString(m[0],"image/svg+xml");
+    doc.querySelectorAll("script,foreignObject,image,a,use").forEach(n=>n.remove());
+    doc.querySelectorAll("*").forEach(n=>[...n.attributes].forEach(a=>{ if(/^on/i.test(a.name)||/href/i.test(a.name)) n.removeAttribute(a.name); }));
+    const svg=new XMLSerializer().serializeToString(doc.documentElement);
+    $("illusWrap").innerHTML=`<img id="illus" alt="Illustration of ${esc(c.en)}" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}">`;
+    btn.textContent="Draw another";
+  }catch(e){ btn.textContent= e&&e.code==="not_granted" ? "Drawing needs Claude access" : "Couldn't draw it, try again"; }
+  btn.disabled=false;
+}
+
+/* ---------- Progress ---------- */
+function mastery(v){ const tot=v.correct+v.wrong; return tot? v.correct/tot : 0; }
+function renderProgress(){
+  const items=Object.values(vocab); const mastered=items.filter(v=>v.correct>=2&&mastery(v)>=0.75).length;
+  const sorted=items.sort((a,b)=>(b.last||0)-(a.last||0)).slice(0,60);
+  $("pane-progress").innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="v">${profile.sessions}</div><div class="l">sessions</div></div>
+      <div class="stat"><div class="v">${items.length}</div><div class="l">words met</div></div>
+      <div class="stat"><div class="v">${mastered}</div><div class="l">words solid</div></div>
+      <div class="stat"><div class="v" style="font-size:16px;padding-top:5px">${esc(profile.level||"–")}</div><div class="l">level</div></div>
+    </div>
+    <h3>Last time</h3>${profile.lastRecap?`<div class="recap">${esc(profile.lastRecap)}${profile.nextPlan?`<br><b>Next:</b> ${esc(profile.nextPlan)}`:""}</div>`:`<p class="none">Finish a session and Noura writes a recap here.</p>`}
+    <h3>Strengths</h3>${profile.strengths.length?`<div class="chips">${profile.strengths.map(s=>`<span class="chip s">${esc(s)}</span>`).join("")}</div>`:`<p class="none">None recorded yet.</p>`}
+    <h3>Working on</h3>${profile.focus.length?`<div class="chips">${profile.focus.map(s=>`<span class="chip f">${esc(s)}</span>`).join("")}</div>`:`<p class="none">None recorded yet.</p>`}
+    <h3>Words</h3>${sorted.length?`<div class="vlist">${sorted.map(v=>{const m=mastery(v),cls=m>=.75?"":m>=.4?"mid":"low";return `<div class="vrow"><div><span class="ar" lang="ar">${esc(v.ar)}</span> <span class="en">${esc(v.tr||"")} · ${esc(v.en||"")}</span></div><div class="bar" title="${v.correct} right, ${v.wrong} missed"><i class="${cls}" style="width:${Math.round((v.correct+v.wrong?m:0.08)*100)}%"></i></div></div>`}).join("")}</div>`:`<p class="none">Words you practice show up here with how reliably you get them.</p>`}
+    <h3>From my Preply teacher this week</h3>
+    <div class="teacher"><textarea id="teacherNotes" placeholder="Paste or type what you covered with your teacher. Noura will review it.">${esc(profile.teacherNotes||"")}</textarea>
+    <div class="card-actions"><button class="btn" id="saveTeacher">Save for Noura</button></div></div>`;
+  $("saveTeacher").onclick=()=>{ profile.teacherNotes=$("teacherNotes").value.trim(); persist(); $("saveTeacher").textContent="Saved"; };
+  renderAbc();
+}
+
+/* ---------- Alphabet ---------- */
+function renderAbc(){
+  const counts={}; for(const v of Object.values(vocab)) for(const ch of normAr(v.ar)) counts[ch]=(counts[ch]||0)+1;
+  const max=Math.max(1,...Object.values(counts));
+  $("abcGrid").innerHTML = LETTERS.map((l,i)=>`<button data-i="${i}" class="${HARD.has(l[0])?"hard":""}"><span class="g" lang="ar">${l[0]}</span><span class="t">${esc(l[2])}</span>${counts[l[0]]?`<span class="heat" style="opacity:${0.25+0.75*counts[l[0]]/max}"></span>`:""}</button>`).join("");
+  $("abcGrid").querySelectorAll("button").forEach(b=>b.onclick=()=>{ const l=LETTERS[+b.dataset.i];
+    $("abcDetail").innerHTML=`<span class="ar" lang="ar">${l[0]} · ${l[1]}</span> &nbsp;${esc(l[2])}, sounds like <b>${esc(l[3])}</b>. Example: <span class="ar" lang="ar">${esc(l[4])}</span> ${esc(l[5])}`;
+    speakSegments([{lang:"ar",text:l[1]},{lang:"ar",text:l[4]}]); });
+}
+function selectTab(name){ document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));
+  ["board","progress","abc"].forEach(n=>$("pane-"+n).hidden=n!==name); if(name==="progress") renderProgress(); if(name==="abc") renderAbc(); }
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+
+/* ---------- Tutor brain ---------- */
+function memoryBrief(){
+  const items=Object.values(vocab);
+  const weak=items.filter(v=>v.wrong>0&&mastery(v)<0.75).sort((a,b)=>b.wrong-a.wrong).slice(0,15).map(v=>`${v.ar} (${v.en}; ${v.correct}✓ ${v.wrong}✗)`);
+  const solid=items.filter(v=>mastery(v)>=0.75&&v.correct>=2).slice(-25).map(v=>v.ar);
+  const recent=items.sort((a,b)=>(b.last||0)-(a.last||0)).slice(0,20).map(v=>`${v.ar}=${v.en}`);
+  return `LEARNER MEMORY
+Name: ${profile.name||"the learner"} | Level: ${profile.level} | Sessions so far: ${profile.sessions} | Last seen: ${profile.lastSeen?new Date(profile.lastSeen).toDateString():"never"}
+Uses Arabic for: ${profile.goals||"everyday life"}
+Learns with a live Saudi teacher (Preply) ~2 h/week; you are the between-lessons practice partner.
+Teacher covered recently: ${profile.teacherNotes||"(not given)"}
+Strengths: ${profile.strengths.join("; ")||"(none yet)"}
+Working on: ${profile.focus.join("; ")||"(none yet)"}
+Observations: ${profile.notes.slice(-10).join("; ")||"(none yet)"}
+Last session recap: ${profile.lastRecap||"(first session)"}
+Planned next: ${profile.nextPlan||"(none)"}
+Weak words (review these): ${weak.join(", ")||"(none)"}
+Solid words: ${solid.join(", ")||"(none)"}
+Recently seen: ${recent.join(", ")||"(none)"}`;
+}
+const RULES = () => `You are Noura (نورة), a warm, quick-witted Saudi Arabic tutor from Riyadh, running a LIVE VOICE practice session. You teach spoken Najdi / Riyadh urban Saudi dialect, not MSA.
+
+HOW YOU TEACH
+- Meet the learner where they are. At the very start of a session: greet warmly in Saudi Arabic, recap last time in one line of English, and quiz 1-2 items from "Working on" or "Weak words" before anything new (spaced review). Then branch to new material connected to what they know and to their goals.
+- Real back-and-forth: every turn ends with ONE clear question or prompt for the learner. One idea per turn. Turns are spoken aloud, so keep them short: at most about 3 short sentences in total.
+- Code-switch by level: beginner ~60% English scaffolding, elementary ~45%, intermediate ~25%, upper-intermediate mostly Arabic. If the learner misses twice in a row, simplify and use more English; when they succeed, push more Arabic.
+- Rotate activities so it stays lively: role-plays (majlis visit, ordering gahwa, office meeting, taxi/Uber, phone call, family dinner, shopping), "how would you say this in Saudi?", multiple-choice quizzes (put 2-4 options in card.options), listen-and-repeat, Saudi-vs-MSA awareness (أبغى/أبي vs أريد, وش vs ماذا, الحين vs الآن, زين vs جيد, مرة vs جداً, ليش vs لماذا, وين vs أين, كذا vs هكذا), and pronunciation focus (ق said as g, ع, ح, خ, غ, emphatic ص ض ط ظ, Najdi ك→ch for feminine "you" in some speech).
+- Input comes from speech-to-text or typing: Arabic script, English, or romanized, possibly garbled. Read it charitably. You only see text, so never claim to hear their accent; judge word choice, grammar and dialect.
+- Correct explicitly and kindly: say what was right, give the correct Saudi form, and have them try again when useful.
+- Write Arabic as Saudis actually say it, in Arabic script. Add tashkeel only where it changes pronunciation for a learner. Never put romanization inside an "ar" segment (it is read by an Arabic voice); romanization goes in card.translit only.
+- Every new word or phrase you teach or test goes on the card, with 1-3 emoji forming a memorable mini-scene and a short memory hook.
+
+OUTPUT: reply with ONLY one JSON object, no prose around it:
+{"say":[{"lang":"en"|"ar","text":"..."}],
+ "card":null|{"kind":"word"|"phrase"|"quiz"|"dialect"|"pronunciation","ar":"","translit":"","en":"","emoji":"","msa":"(MSA equivalent, dialect cards only)","tip":"","options":[]},
+ "expect":"ar"|"en",
+ "eval":null|{"item":"","result":"correct"|"partial"|"wrong","fix":""},
+ "memory":{"vocab":[{"ar":"","translit":"","en":"","result":"new"|"correct"|"partial"|"wrong"}],"strengths_add":[],"focus_add":[],"focus_resolved":[],"level":"unchanged","note":""}}
+- "say" segments are spoken in order; split English and Arabic into separate segments.
+- "eval" grades the learner's LAST answer (null if nothing was tested). memory.vocab lists words introduced (new) or tested this turn with the result. strengths_add/focus_add are short durable skill labels (e.g. "past tense with ما", "ق as g"); focus_resolved names "Working on" items now mastered. level changes only with strong evidence. note is one durable observation or "".`;
+
+function extractJSON(t){ try{return JSON.parse(t)}catch(e){} const m=String(t).match(/\{[\s\S]*\}/); if(m){try{return JSON.parse(m[0])}catch(e){}} return null; }
+async function askNoura(userText){
+  if(!sessionBrief) sessionBrief = memoryBrief();
+  const msgs=[{role:"user",content:sessionBrief+"\n\n[Start the session now: greet me, recap briefly, and begin with a review question.]"}];
+  for(const t of turns.slice(-18)) msgs.push(t);
+  if(userText!==null) msgs.push({role:"user",content:userText});
+  if(msgs[msgs.length-1].role!=="user") msgs.push({role:"user",content:"[Continue.]"});
+  const opts={modelTier:tier,system:RULES()};
+  try{ return await sample.json(msgs,opts); }
+  catch(e){ if(e&&e.code==="invalid_json"&&e.text){ const j=extractJSON(e.text); if(j) return j; } throw e; }
+}
+function applyMemory(r){
+  const m=r.memory||{}; const now=Date.now();
+  for(const v of (m.vocab||[])){ if(!v||!v.ar) continue; const k=normAr(v.ar); const cur=vocab[k]||{ar:v.ar,tr:v.translit||"",en:v.en||"",seen:0,correct:0,wrong:0,last:0};
+    cur.seen++; cur.last=now; if(v.translit) cur.tr=v.translit; if(v.en) cur.en=v.en;
+    if(v.result==="correct") cur.correct++; else if(v.result==="wrong") cur.wrong++; else if(v.result==="partial"){cur.correct+=0.5;cur.wrong+=0.5}
+    vocab[k]=cur; }
+  const keys=Object.keys(vocab); if(keys.length>400){ keys.sort((a,b)=>vocab[a].last-vocab[b].last).slice(0,keys.length-400).forEach(k=>delete vocab[k]); }
+  const add=(arr,xs,cap)=>{ for(const x of xs||[]){ if(x&&!arr.some(a=>a.toLowerCase()===String(x).toLowerCase())) arr.push(String(x)); } while(arr.length>cap) arr.shift(); };
+  add(profile.strengths,m.strengths_add,15); add(profile.focus,m.focus_add,12);
+  for(const x of m.focus_resolved||[]){ profile.focus=profile.focus.filter(f=>!f.toLowerCase().includes(String(x).toLowerCase()) && !String(x).toLowerCase().includes(f.toLowerCase())); }
+  if(m.level&&m.level!=="unchanged"&&["beginner","elementary","intermediate","upper-intermediate"].includes(m.level)) profile.level=m.level;
+  if(m.note) add(profile.notes,[m.note],20);
+  profile.lastSeen=now; persist();
+}
+function errText(e){ const c=e&&e.code;
+  return c==="not_granted"?"Your sign-in expired. Reload the page to sign in again.":
+         c==="rate_limited"?"Daily practice limit reached, or too many requests at once. Wait a moment and try again.":
+         c==="network"?"You seem to be offline. Check your connection and send again.":
+         "Noura didn't get that through. Send your answer again."; }
+
+async function nouraTurn(userText){
+  setBusy(true); stopSpeaking(); setMode("thinking");
+  try{
+    const r = await askNoura(userText);
+    const say = Array.isArray(r.say)? r.say.filter(s=>s&&s.text).map(s=>({lang:s.lang==="ar"?"ar":"en",text:String(s.text)})) : [];
+    turns.push({role:"assistant",content:JSON.stringify({say:r.say,card:r.card,eval:r.eval})});
+    let evalEl=null;
+    if(r.eval&&r.eval.result){ evalEl=document.createElement("div"); evalEl.className="eval "+r.eval.result;
+      evalEl.textContent=(r.eval.result==="correct"?"✓ ":r.eval.result==="partial"?"≈ ":"✗ ")+(r.eval.item||"")+(r.eval.fix&&r.eval.result!=="correct"?` → ${r.eval.fix}`:""); }
+    addMsg("noura",say,evalEl);
+    sessionLog.push("Noura: "+say.map(s=>s.text).join(" ")+(r.eval?` [eval: ${r.eval.item} ${r.eval.result}]`:""));
+    if(r.card) renderCard(r.card);
+    if(r.expect==="en"||r.expect==="ar"){ expectLang=r.expect; setLang(r.expect); }
+    applyMemory(r);
+    setBusy(false);
+    await speakSegments(say);
+  }catch(e){ setBusy(false); setMode("idle"); showBanner(errText(e)); }
+}
+function userTurn(text, fromOption){
+  text=String(text||"").trim(); if(!text||busy) return; showBanner("");
+  const isAr=/[؀-ۿ]/.test(text);
+  addMsg("me",[{lang:isAr?"ar":"en",text}]);
+  turns.push({role:"user",content:(fromOption?"[tapped quiz option] ":"")+text});
+  sessionLog.push((profile.name||"Learner")+": "+text);
+  nouraTurn(null);
+}
+$("typeForm").onsubmit=(e)=>{ e.preventDefault(); const v=$("text").value; $("text").value=""; userTurn(v); };
+
+/* ---------- Listening ---------- */
+let heard="", listening=false, webRec=null;
+function setListening(on){ listening=on; $("micBtn").classList.toggle("listening",on); setMode(on?"listening":(busy?"thinking":"idle")); }
+async function micToggle(){
+  if(!sessionActive) return;
+  if(listening){ // stop and send
+    if(dict){ try{ await dict.stop(); }catch(e){} }
+    else if(webRec){ try{webRec.stop()}catch(e){} return; }
+    finishHeard(); return;
+  }
+  stopSpeaking(); heard=""; $("text").value="";
+  if(dict){
+    setListening(true);
+    const langs = speakLang==="ar" ? ["ar-SA","ar"] : ["en-US"];
+    try{ await dict.start({language:langs[0]}); }
+    catch(e){
+      if(e&&e.code==="unavailable"&&langs[1]){ $("micHint").textContent="Saudi Arabic dictation isn't offered here, trying general Arabic. Tap the mic again."; }
+      else if(e&&e.code==="not_granted"){ $("micHint").textContent="Microphone is off for this page. Type your answers, or allow dictation in the page's Permissions menu."; }
+      else if(e&&e.code==="unavailable"){ if(speakLang==="ar"){ useOsDictation(); return; } $("micHint").textContent="English dictation isn't available in this view. Type instead."; }
+      if(e&&e.code==="unavailable"&&langs[1]) fallbackLang=true;
+      setListening(false);
+    }
+    return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    try{
+      webRec=new SR(); webRec.lang=speakLang==="ar"?"ar-SA":"en-US"; webRec.interimResults=true; webRec.continuous=true;
+      webRec.onresult=(ev)=>{ let fin="",part=""; for(const r of ev.results){ if(r.isFinal) fin+=r[0].transcript+" "; else part+=r[0].transcript; } heard=fin; $("text").value=(fin+part).trim(); listenBump=0.4; };
+      webRec.onend=()=>{ finishHeard(); webRec=null; };
+      webRec.onerror=(ev)=>{ const e=ev.error;
+        if(e==="no-speech"||e==="aborted") return;
+        if(e==="not-allowed"||e==="service-not-allowed"){ $("micHint").textContent="The microphone is blocked. Click the lock icon in the address bar, allow the microphone, and reload."; return; }
+        if(speakLang==="ar") useOsDictation(); else $("micHint").textContent="Speech recognition failed ("+e+"). Try again, or type."; };
+      webRec.start(); setListening(true);
+    }catch(e){ $("micHint").textContent="Voice input isn't available in this browser. Type your answers instead."; }
+  } else $("micHint").textContent="Voice input isn't available in this browser. Type your answers instead.";
+}
+let fallbackLang=false, arUnavailable=false;
+const OS_GUIDE = "Arabic voice: use your device's own dictation into the text box, then pause and it sends. Mac: press the Fn/🌐 key twice (add Arabic (Saudi Arabia) under System Settings › Keyboard › Dictation, then pick it from the language chip). iPhone/iPad: switch to the Arabic keyboard and tap its mic. Android: Gboard mic, set to Arabic (Saudi Arabia).";
+function useOsDictation(){ arUnavailable=true; $("autoSend").checked=true; stopSpeaking(); setListening(false);
+  $("micHint").textContent=OS_GUIDE; $("text").placeholder="Dictate here in Arabic (device mic)…"; $("text").focus(); }
+/* Auto-send: when the box stops changing for a moment, send it (works with OS dictation) */
+let autoTimer=null;
+$("text").addEventListener("input",()=>{ clearTimeout(autoTimer); if(!$("autoSend").checked||listening||!sessionActive) return;
+  autoTimer=setTimeout(()=>{ const v=$("text").value.trim(); if(v&&!busy&&!listening){ $("text").value=""; userTurn(v); } }, 2600); });
+function finishHeard(){ setListening(false); const t=($("text").value||heard).trim(); $("text").value=""; heard=""; if(t) userTurn(t); }
+$("micBtn").addEventListener("click", ()=>{
+  if(arUnavailable && speakLang==="ar" && !listening){ useOsDictation(); return; }
+  // dictation.start must run synchronously inside the click; micToggle calls it before any await on the start path
+  if(fallbackLang && !listening && dict && speakLang==="ar"){ stopSpeaking(); heard=""; setListening(true);
+    dict.start({language:"ar"}).catch(e=>{ useOsDictation(); }); return; }
+  micToggle();
+});
+document.addEventListener("keydown",(e)=>{ if(e.code==="Space" && !e.repeat && sessionActive && !/input|textarea|select|button/i.test(document.activeElement.tagName)){ e.preventDefault(); $("micBtn").click(); } });
+
+/* ---------- Session lifecycle ---------- */
+async function startSession(){
+  // unlock audio on this gesture
+  try{ if(synth){ const u=new SpeechSynthesisUtterance(" "); u.volume=0; synth.speak(u);} }catch(e){}
+  sessionActive=true; turns=[]; sessionLog=[]; sessionBrief=memoryBrief(); $("startOver").hidden=true; $("endBtn").disabled=false; $("text").disabled=false; setBusy(false);
+  $("statusLine").textContent=`Session ${profile.sessions+1} · ${profile.level}`;
+  await nouraTurn(null);
+}
+async function endSession(){
+  if(!sessionActive) return; stopSpeaking(); sessionActive=false; setBusy(true); $("endBtn").disabled=true; $("text").disabled=true;
+  profile.sessions+=1; profile.lastSeen=Date.now();
+  $("stageCap").innerHTML="Noura is writing your recap…";
+  try{
+    const r = await sample.json(`You are a Saudi Arabic tutor's note-taker. Using the learner memory and this session's transcript, update the learner's record so next session starts in the right place.
+${memoryBrief()}
+
+SESSION TRANSCRIPT
+${sessionLog.slice(-80).join("\n").slice(0,12000)}
+
+Reply with only JSON: {"recap":"2 sentences in English: what was practiced and how it went","next_plan":"1 sentence: what to review and what new topic to branch into next time","strengths":["full updated list, max 12 short labels"],"focus":["full updated list of what still needs work, max 10 short labels"],"level":"beginner|elementary|intermediate|upper-intermediate"}`,{modelTier:"default"});
+    if(r.recap) profile.lastRecap=r.recap; if(r.next_plan) profile.nextPlan=r.next_plan;
+    if(Array.isArray(r.strengths)&&r.strengths.length) profile.strengths=r.strengths.slice(0,12).map(String);
+    if(Array.isArray(r.focus)) profile.focus=r.focus.slice(0,10).map(String);
+    if(["beginner","elementary","intermediate","upper-intermediate"].includes(r.level)) profile.level=r.level;
+    profile.history=[...(profile.history||[]),{d:Date.now(),recap:profile.lastRecap}].slice(-20);
+  }catch(e){ showBanner("The recap couldn't be written, but this session's words and progress are saved."); }
+  persist(); setMode("idle");
+  $("startOver").hidden=false; $("startText").textContent=profile.lastRecap? `Saved. ${profile.lastRecap} Next time: ${profile.nextPlan||"pick up from here."}`:"Saved. Come back anytime.";
+  $("startBtn").textContent="Start another session · نكمّل";
+  $("statusLine").textContent=`${profile.sessions} sessions · ${profile.level}`;
+  selectTab("progress");
+}
+$("startBtn").onclick=()=>{ if(!profile.name){ openOnboard(); } else startSession(); };
+$("endBtn").onclick=endSession;
+
+function openOnboard(){ try{$("onboard").showModal()}catch(e){} }
+$("obSave").onclick=(e)=>{ e.preventDefault();
+  profile.name=$("obName").value.trim()||"friend"; profile.level=$("obLevel").value; profile.goals=$("obGoals").value.trim(); profile.teacherNotes=$("obTeacher").value.trim();
+  persist(); $("onboard").close(); startSession(); };
+
+$("settingsBtn").onclick=()=>{ $("setName").value=profile.name||""; $("setLevel").value=profile.level; $("tier").value=tier; $("arRate").value=arRate; loadVoices(); try{$("settings").showModal()}catch(e){} };
+$("setSave").onclick=()=>{
+  const an=$("arVoice").value.replace(/ \([^)]*\)$/,""), en=$("enVoice").value.replace(/ \([^)]*\)$/,"");
+  LS.set("sawalif.arVoice",an); LS.set("sawalif.enVoice",en); arRate=+$("arRate").value; LS.set("sawalif.arRate",arRate);
+  tier=$("tier").value; LS.set("sawalif.tier",tier);
+  if($("setName").value.trim()) profile.name=$("setName").value.trim(); profile.level=$("setLevel").value; persist(); loadVoices();
+};
+
+/* ---------- Boot ---------- */
+(async function boot(){
+  arRate = LS.get("sawalif.arRate") || 0.9; tier = LS.get("sawalif.tier") || "default";
+  await loadMemory();
+  if(profile.sessions>0||profile.lastRecap){
+    $("startText").textContent = `Welcome back${profile.name?", "+profile.name:""}. ${profile.lastRecap||""} ${profile.nextPlan?"Today: "+profile.nextPlan:""}`.trim();
+    $("statusLine").textContent=`${profile.sessions} sessions · ${profile.level}`;
+    $("startBtn").textContent="Continue · نكمّل";
+  }
+  if(!(window.SpeechRecognition||window.webkitSpeechRecognition)) $("micHint").textContent="This browser has no built-in speech recognition. Use Chrome or Edge for the mic, or your device's dictation into the text box.";
+  renderAbc();
+})();
+})();
+</script>
+</body>
+</html>
