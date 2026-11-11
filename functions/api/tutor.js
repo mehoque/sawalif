@@ -18,7 +18,7 @@ function json(obj, status = 200) {
 }
 
 export async function onRequestPost({ request, env, data }) {
-  const apiKey = String(env.ANTHROPIC_API_KEY || "").trim().replace(/^["']|["']$/g, "");
+  const apiKey = String(env.CLAUDE_API_KEY || env.ANTHROPIC_API_KEY || "").trim().replace(/^["']|["']$/g, "");
   if (!apiKey) return new Response("ANTHROPIC_API_KEY is not set.", { status: 500 });
   if (!apiKey.startsWith("sk-ant-")) return new Response(`ANTHROPIC_API_KEY does not look like a Claude API key (it should start with sk-ant-). Saved value starts with "${apiKey.slice(0, 4)}" and is ${apiKey.length} characters long.`, { status: 500 });
 

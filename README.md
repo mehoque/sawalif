@@ -47,7 +47,7 @@ In the Pages project: **Settings > Variables and Secrets** (Production), add:
 
 | Name | Value | Type |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | the key from step 1 | Secret |
+| `CLAUDE_API_KEY` | the key from step 1 (older name `ANTHROPIC_API_KEY` also works) | Secret |
 | `ACCESS_TEAM` | your Zero Trust team name, e.g. `hoque` | Text |
 | `ACCESS_AUD` | the AUD tag from step 4 | Text |
 | `ALLOWED_EMAILS` | your email (comma-separate to add more) | Text |
